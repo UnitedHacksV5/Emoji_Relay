@@ -58,8 +58,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setAppState(prev => ({ ...prev, playerName: name }));
   };
 
-  const subscribeToGame = async (roomCode: string) => {
-  }
+  
   const subscribeToGame = async (roomCode: string, gameId: string) => {
     console.log(`🔄 Setting up real-time subscription for room: ${roomCode}, gameId: ${gameId}`);
     
