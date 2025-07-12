@@ -1,9 +1,9 @@
 import React from 'react';
-import { Copy, Crown, Users, Play, ArrowLeft } from 'lucide-react';
+import { Copy, Crown, Users, Play, ArrowLeft, AlertCircle } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 
 export const WaitingLobby: React.FC = () => {
-  const { appState, startGame, navigateHome } = useGame();
+  const { appState, startGame, navigateHome, isLoading, error } = useGame();
   const game = appState.currentGame!;
   const isHost = game.players.find(p => p.id === appState.playerId)?.isHost || false;
 
@@ -31,6 +31,14 @@ export const WaitingLobby: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-800">Waiting Lobby</h1>
           <div className="w-16"></div>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-700">
+            <AlertCircle className="w-4 h-4" />
+            <span className="text-sm">{error}</span>
+          </div>
+        )}
 
         {/* Room Code Card */}
         <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 mb-6">
@@ -103,11 +111,11 @@ export const WaitingLobby: React.FC = () => {
           <div className="text-center">
             <button
               onClick={startGame}
-              disabled={game.players.length < 2}
+              disabled={game.players.length < 2 || isLoading}
               className="bg-gradient-to-r from-green-500 to-teal-600 text-white py-4 px-8 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 hover:from-green-600 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 mx-auto"
             >
               <Play className="w-6 h-6" />
-              Start Game 🚀
+              {isLoading ? 'Starting...' : 'Start Game 🚀'}
             </button>
             {game.players.length < 2 && (
               <p className="text-sm text-gray-500 mt-2">

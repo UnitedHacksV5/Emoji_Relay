@@ -1,9 +1,9 @@
 import React from 'react';
-import { Share, RotateCcw, Home, Copy } from 'lucide-react';
+import { Share, RotateCcw, Home, Copy, AlertCircle } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 
 export const FinalStoryPage: React.FC = () => {
-  const { appState, playAgain, navigateHome } = useGame();
+  const { appState, playAgain, navigateHome, isLoading, error } = useGame();
   const game = appState.currentGame!;
 
   const shareStory = async () => {
@@ -50,6 +50,14 @@ export const FinalStoryPage: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Story Complete!</h1>
           <p className="text-lg text-gray-600">Here's the amazing story you created together</p>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-8 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-700">
+            <AlertCircle className="w-4 h-4" />
+            <span className="text-sm">{error}</span>
+          </div>
+        )}
 
         {/* Final Story Display */}
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100 mb-8">
@@ -116,10 +124,11 @@ export const FinalStoryPage: React.FC = () => {
 
           <button
             onClick={playAgain}
+            disabled={isLoading}
             className="bg-gradient-to-r from-green-500 to-teal-600 text-white py-3 px-6 rounded-xl font-bold flex items-center justify-center gap-2 hover:from-green-600 hover:to-teal-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
           >
             <RotateCcw className="w-5 h-5" />
-            Play Again 🔁
+            {isLoading ? 'Starting...' : 'Play Again 🔁'}
           </button>
 
           <button

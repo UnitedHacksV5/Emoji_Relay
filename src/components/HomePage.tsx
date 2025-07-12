@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
-import { Gamepad2, Users, Sparkles } from 'lucide-react';
+import { Gamepad2, Users, Sparkles, AlertCircle } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 
 export const HomePage: React.FC = () => {
-  const { appState, setPlayerName, createGame, joinGame } = useGame();
+  const { appState, setPlayerName, createGame, joinGame, isLoading, error } = useGame();
   const [showJoinInput, setShowJoinInput] = useState(false);
   const [roomCode, setRoomCode] = useState('');
 
-  const handleCreateGame = () => {
+  const handleCreateGame = async () => {
     if (appState.playerName.trim()) {
-      createGame();
+      await createGame();
     }
   };
 
-  const handleJoinGame = () => {
+  const handleJoinGame = async () => {
     if (appState.playerName.trim() && roomCode.trim()) {
-      joinGame(roomCode.toUpperCase());
+      await joinGame(roomCode.toUpperCase());
     }
   };
 
@@ -33,6 +33,14 @@ export const HomePage: React.FC = () => {
 
         {/* Main Card */}
         <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-700">
+              <AlertCircle className="w-4 h-4" />
+              <span className="text-sm">{error}</span>
+            </div>
+          )}
+
           {/* Name Input */}
           <div className="mb-6">
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -52,16 +60,16 @@ export const HomePage: React.FC = () => {
           <div className="space-y-3">
             <button
               onClick={handleCreateGame}
-              disabled={!appState.playerName.trim()}
+              disabled={!appState.playerName.trim() || isLoading}
               className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-xl font-medium flex items-center justify-center gap-2 hover:from-blue-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
               <Gamepad2 className="w-5 h-5" />
-              Create Game 🎉
+              {isLoading ? 'Creating...' : 'Create Game 🎉'}
             </button>
 
             <button
               onClick={() => setShowJoinInput(!showJoinInput)}
-              disabled={!appState.playerName.trim()}
+              disabled={!appState.playerName.trim() || isLoading}
               className="w-full bg-gradient-to-r from-green-500 to-teal-600 text-white py-3 px-4 rounded-xl font-medium flex items-center justify-center gap-2 hover:from-green-600 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
             >
               <Users className="w-5 h-5" />
@@ -86,10 +94,10 @@ export const HomePage: React.FC = () => {
                 />
                 <button
                   onClick={handleJoinGame}
-                  disabled={!roomCode.trim()}
+                  disabled={!roomCode.trim() || isLoading}
                   className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
                 >
-                  Join
+                  {isLoading ? 'Joining...' : 'Join'}
                 </button>
               </div>
             </div>

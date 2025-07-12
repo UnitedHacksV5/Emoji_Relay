@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Send, ArrowLeft } from 'lucide-react';
+import { Clock, Send, ArrowLeft, AlertCircle } from 'lucide-react';
 import { useGame } from '../context/GameContext';
 import { EmojiPicker } from './EmojiPicker';
 
 export const GameplayPage: React.FC = () => {
-  const { appState, addEmoji, navigateHome } = useGame();
+  const { appState, addEmoji, navigateHome, isLoading, error } = useGame();
   const [selectedEmoji, setSelectedEmoji] = useState('');
   const [timeLeft, setTimeLeft] = useState(30);
   const game = appState.currentGame!;
@@ -24,9 +24,9 @@ export const GameplayPage: React.FC = () => {
     }
   }, [isMyTurn, timeLeft]);
 
-  const handleSubmitEmoji = () => {
+  const handleSubmitEmoji = async () => {
     if (selectedEmoji && isMyTurn) {
-      addEmoji(selectedEmoji);
+      await addEmoji(selectedEmoji);
       setSelectedEmoji('');
       setTimeLeft(30);
     }
@@ -51,6 +51,14 @@ export const GameplayPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-gray-800">Emoji Story</h1>
           <div className="w-20"></div>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-700">
+            <AlertCircle className="w-4 h-4" />
+            <span className="text-sm">{error}</span>
+          </div>
+        )}
 
         {/* Story Display */}
         <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 mb-6">
@@ -127,11 +135,11 @@ export const GameplayPage: React.FC = () => {
             <div className="text-center mt-6">
               <button
                 onClick={handleSubmitEmoji}
-                disabled={!selectedEmoji}
+                disabled={!selectedEmoji || isLoading}
                 className="bg-gradient-to-r from-green-500 to-teal-600 text-white py-3 px-8 rounded-xl font-bold flex items-center justify-center gap-2 hover:from-green-600 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 mx-auto"
               >
                 <Send className="w-5 h-5" />
-                Add to Story
+                {isLoading ? 'Adding...' : 'Add to Story'}
               </button>
             </div>
           </div>
