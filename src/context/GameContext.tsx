@@ -61,8 +61,11 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const subscribeToGame = async (roomCode: string) => {
   }
   const subscribeToGame = async (roomCode: string, gameId: string) => {
+    console.log(`🔄 Setting up real-time subscription for room: ${roomCode}, gameId: ${gameId}`);
+    
     // Unsubscribe from previous channel
     if (gameChannel) {
+      console.log('🔌 Unsubscribing from previous channel');
       gameChannel.unsubscribe();
     }
 
@@ -96,10 +99,13 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       )
       .subscribe();
 
+    console.log(`✅ Real-time subscription established for room: ${roomCode}`);
     setGameChannel(channel);
   };
 
   const fetchGameState = async (roomCode: string) => {
+    console.log(`📡 Fetching game state for room: ${roomCode}`);
+    
     try {
       // Fetch game data
       const { data: gameData, error: gameError } = await supabase
@@ -109,6 +115,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         .single();
 
       if (gameError) throw gameError;
+      console.log('🎮 Fetched game data:', gameData);
 
       // Fetch players data
       const { data: playersData, error: playersError } = await supabase
@@ -118,6 +125,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         .order('player_order');
 
       if (playersError) throw playersError;
+      console.log('👥 Fetched players data:', playersData);
 
       // Convert to our app format
       const players: Player[] = playersData.map(player => ({
@@ -136,12 +144,16 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         timeLeft: 30
       };
 
+      console.log('🔄 Updating app state with game:', gameState);
+      
       setAppState(prev => ({
         ...prev,
         currentGame: gameState,
         currentPage: gameData.game_phase === 'finished' ? 'story' : 
                     gameData.game_phase === 'playing' ? 'game' : 'lobby'
       }));
+
+      console.log('✅ App state updated successfully');
 
     } catch (err) {
       console.error('Error fetching game state:', err);
