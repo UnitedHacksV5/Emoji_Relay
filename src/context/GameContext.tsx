@@ -58,10 +58,22 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setAppState(prev => ({ ...prev, playerName: name }));
   };
 
-  const subscribeToGame = (roomCode: string) => {
+  const subscribeToGame = async (roomCode: string) => {
     // Unsubscribe from previous channel
     if (gameChannel) {
       gameChannel.unsubscribe();
+    }
+
+    // First, get the game_id for this room code
+    const { data: gameData, error: gameError } = await supabase
+      .from('games')
+      .select('id')
+      .eq('room_code', roomCode)
+      .single();
+
+    if (gameError) {
+      console.error('Error fetching game for subscription:', gameError);
+      return;
     }
 
     const channel = supabase
@@ -84,7 +96,8 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         {
           event: '*',
           schema: 'public',
-          table: 'players'
+          table: 'players',
+          filter: `game_id=eq.${gameData.id}`
         },
         async (payload) => {
           console.log('Players update:', payload);
@@ -181,7 +194,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (playerError) throw playerError;
 
       // Subscribe to real-time updates
-      subscribeToGame(roomCode);
+      await subscribeToGame(roomCode);
 
       // Fetch initial game state
       await fetchGameState(roomCode);
@@ -236,7 +249,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (joinError) throw joinError;
 
       // Subscribe to real-time updates
-      subscribeToGame(roomCode);
+      await subscribeToGame(roomCode);
 
       // Fetch game state
       await fetchGameState(roomCode);
