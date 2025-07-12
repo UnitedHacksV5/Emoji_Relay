@@ -59,6 +59,7 @@ export const GameProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const subscribeToGame = async (roomCode: string) => {
+  }
   const subscribeToGame = async (roomCode: string, gameId: string) => {
     // Unsubscribe from previous channel
     if (gameChannel) {
